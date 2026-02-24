@@ -12,7 +12,7 @@ from app.models import * #noqa
 # access to the values within the .ini file in use.
 config = context.config
 config.set_main_option(
-    "sqlalchemy.org",
+    "sqlalchemy.url",
     DB_URL
 )
 

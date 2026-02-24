@@ -1,30 +1,36 @@
 from datetime import datetime
 from sqlalchemy import BigInteger, Integer, String, Boolean, ForeignKey, Numeric, DateTime, JSON, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.database import Base
 
 
-class Base(DeclarativeBase):
-    pass
-
-
-class User(Base):
-    __tablename__ = "users"
+class BaseModel(Base):
+    __abstract__ = True
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=func.now(), onupdate=func.now()
+    )
+
+
+class User(BaseModel):
+    __tablename__ = "users"
+
     username: Mapped[str] = mapped_column(String, unique=True)
     full_name: Mapped[str] = mapped_column(String)
     role: Mapped[str] = mapped_column(String)
     password_hash: Mapped[str] = mapped_column(String)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
     orders = relationship("Order", back_populates="waiter")
 
 
-class DiningTable(Base):
+class DiningTable(BaseModel):
     __tablename__ = "dining_table"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     table_no: Mapped[str] = mapped_column(String, unique=True)
     capacity: Mapped[int] = mapped_column(Integer)
     status: Mapped[str] = mapped_column(String)
@@ -32,20 +38,18 @@ class DiningTable(Base):
     orders = relationship("Order", back_populates="table")
 
 
-class MenuCategory(Base):
+class MenuCategory(BaseModel):
     __tablename__ = "menu_category"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String)
     sort_order: Mapped[int] = mapped_column(Integer)
 
     items = relationship("MenuItem", back_populates="category")
 
 
-class MenuItem(Base):
+class MenuItem(BaseModel):
     __tablename__ = "menu_item"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     category_id: Mapped[int] = mapped_column(ForeignKey("menu_category.id"))
     name: Mapped[str] = mapped_column(String)
     description: Mapped[str] = mapped_column(String)
@@ -57,10 +61,10 @@ class MenuItem(Base):
     variants = relationship("MenuItemVariant", back_populates="menu_item")
 
 
-class MenuItemVariant(Base):
+class MenuItemVariant(BaseModel):
     __tablename__ = "menu_item_variant"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+
     menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_item.id"))
     name: Mapped[str] = mapped_column(String)
     price_delta: Mapped[float] = mapped_column(Numeric)
@@ -69,14 +73,13 @@ class MenuItemVariant(Base):
     menu_item = relationship("MenuItem", back_populates="variants")
 
 
-class Order(Base):
+class Order(BaseModel):
     __tablename__ = "orders"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     table_id: Mapped[int] = mapped_column(ForeignKey("dining_table.id"))
     waiter_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     status: Mapped[str] = mapped_column(String)
-    opened_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    opened_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     submitted_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     closed_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     notes: Mapped[str] = mapped_column(String, nullable=True)
@@ -87,7 +90,7 @@ class Order(Base):
     payments = relationship("Payment", back_populates="order")
 
 
-class OrderItem(Base):
+class OrderItem(BaseModel):
     __tablename__ = "order_item"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
@@ -100,7 +103,6 @@ class OrderItem(Base):
     note: Mapped[str] = mapped_column(String, nullable=True)
 
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     sent_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     ready_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     served_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
@@ -109,10 +111,9 @@ class OrderItem(Base):
     modifiers = relationship("OrderItemModifier", back_populates="order_item")
 
 
-class OrderItemModifier(Base):
+class OrderItemModifier(BaseModel):
     __tablename__ = "order_item_modifier"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     order_item_id: Mapped[int] = mapped_column(ForeignKey("order_item.id"))
     name: Mapped[str] = mapped_column(String)
     price_delta: Mapped[float] = mapped_column(Numeric)
@@ -120,27 +121,24 @@ class OrderItemModifier(Base):
     order_item = relationship("OrderItem", back_populates="modifiers")
 
 
-class Payment(Base):
+class Payment(BaseModel):
     __tablename__ = "payment"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
     cashier_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
     method: Mapped[str] = mapped_column(String)
     amount: Mapped[float] = mapped_column(Numeric)
-    paid_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    paid_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     receipt_no: Mapped[str] = mapped_column(String, unique=True)
 
     order = relationship("Order", back_populates="payments")
 
 
-class AuditLog(Base):
+class AuditLog(BaseModel):
     __tablename__ = "audit_log"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     entity: Mapped[str] = mapped_column(String)
     entity_id: Mapped[int] = mapped_column(BigInteger)
     action: Mapped[str] = mapped_column(String)
     meta: Mapped[dict] = mapped_column(JSON)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
