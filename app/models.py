@@ -1,5 +1,15 @@
 from datetime import datetime
-from sqlalchemy import BigInteger, Integer, String, Boolean, ForeignKey, Numeric, DateTime, JSON, func
+from sqlalchemy import (
+    BigInteger,
+    Integer,
+    String,
+    Boolean,
+    ForeignKey,
+    Numeric,
+    DateTime,
+    JSON,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
@@ -20,15 +30,19 @@ class User(BaseModel):
     __tablename__ = "users"
 
     username: Mapped[str] = mapped_column(String, unique=True)
-    first_name: Mapped[str] = mapped_column(String)
-    last_name: Mapped[str] = mapped_column(String)
+    first_name: Mapped[str] = mapped_column(String, nullable=True)
+    last_name: Mapped[str] = mapped_column(String, nullable=True)
     role: Mapped[str] = mapped_column(String)
+    avatar_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("media.id", ondelete="SET NULL"), nullable=True
+    )
     password_hash: Mapped[str] = mapped_column(String)
-    is_active: Mapped[bool] = mapped_column(Boolean, default = True )
-    is_admin: Mapped[bool] = mapped_column(Boolean, default = False)
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default = False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    orders = relationship("Order", back_populates="waiter")
+    orders: Mapped[list["Order"]] = relationship("Order", back_populates="waiter")
+    avatar: Mapped["Media"] = relationship("Media", foreign_keys=[avatar_id])
 
 
 class DiningTable(BaseModel):
@@ -48,13 +62,19 @@ class MenuCategory(BaseModel):
     sort_order: Mapped[int] = mapped_column(Integer)
 
     items = relationship("MenuItem", back_populates="category")
+    
+    def __repr__(self):
+        return self.name
 
 
 class MenuItem(BaseModel):
     __tablename__ = "menu_item"
 
-    category_id: Mapped[int] = mapped_column(ForeignKey("menu_category.id"))
+    category_id: Mapped[int] = mapped_column(ForeignKey("menu_category.id"),nullable=True)
     name: Mapped[str] = mapped_column(String)
+    img_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("media.id", ondelete="SET NULL"), nullable=True
+    )
     description: Mapped[str] = mapped_column(String)
     base_price: Mapped[float] = mapped_column(Numeric)
     station: Mapped[str] = mapped_column(String)
@@ -62,11 +82,11 @@ class MenuItem(BaseModel):
 
     category = relationship("MenuCategory", back_populates="items")
     variants = relationship("MenuItemVariant", back_populates="menu_item")
+    img: Mapped["Media"] = relationship("Media", foreign_keys=[img_id])
 
 
 class MenuItemVariant(BaseModel):
     __tablename__ = "menu_item_variant"
-
 
     menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_item.id"))
     name: Mapped[str] = mapped_column(String)
@@ -99,12 +119,13 @@ class OrderItem(BaseModel):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
     menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_item.id"))
-    variant_id: Mapped[int] = mapped_column(ForeignKey("menu_item_variant.id"), nullable=True)
+    variant_id: Mapped[int] = mapped_column(
+        ForeignKey("menu_item_variant.id"), nullable=True
+    )
     qty: Mapped[int] = mapped_column(Integer)
     unit_price: Mapped[float] = mapped_column(Numeric)
     status: Mapped[str] = mapped_column(String)
     note: Mapped[str] = mapped_column(String, nullable=True)
-
 
     sent_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     ready_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
@@ -145,3 +166,10 @@ class AuditLog(BaseModel):
     entity_id: Mapped[int] = mapped_column(BigInteger)
     action: Mapped[str] = mapped_column(String)
     meta: Mapped[dict] = mapped_column(JSON)
+
+
+class Media(Base):
+    __tablename__ = "media"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    url: Mapped[str] = mapped_column(String)
