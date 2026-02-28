@@ -103,6 +103,11 @@ class MenuCategoryView(ModelView):
         "created_at",
         "updated_at"
     ]
+    exclude_fields_from_detail=[
+        "id",
+        "sort_order",
+        "created_at",
+        "updated_at"]
 
 
 
@@ -190,3 +195,66 @@ class MenuItemView(ModelView):
             obj.img_id = media.id
     
         data.pop("img_file", None)
+        
+        
+        
+class TableViews(ModelView):
+    fields=[
+        "id",
+        "table_no",
+        "capacity",
+        "status",
+        "created_at",
+        "updated_at"
+    ]
+    exclude_fields_from_create=[
+        "updated_at",
+        "created_at",
+        "id",
+        "status"
+    ]
+    exclude_fields_from_edit=[
+        "updated_at",
+        "created_at",
+        "id"
+    ]
+    exclude_fields_from_list=[
+        "updated_at",
+        "created_at",
+        "id"
+    ]
+    
+    
+    
+    
+class PaymentView(ModelView):
+    fields=[
+        "id",
+        "order",
+        "cashier_id",
+        "method",
+        "paid_at",
+        "receipt_no",
+        "created_at",
+        "updated_at"
+    ]
+    exclude_fields_from_list=[
+        "id",
+        "updated_at",
+        ]
+    
+    
+    
+class OrdersView(ModelView):
+    pass
+
+
+
+class OrderItemView(ModelView):
+    pass
+
+class MenuVariantView(ModelView):
+    pass
+
+class AuditLogView(ModelView):
+    pass

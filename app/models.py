@@ -51,7 +51,7 @@ class DiningTable(BaseModel):
 
     table_no: Mapped[str] = mapped_column(String, unique=True)
     capacity: Mapped[int] = mapped_column(Integer)
-    status: Mapped[str] = mapped_column(String)
+    status: Mapped[str] = mapped_column(String,nullable=True)
 
     orders = relationship("Order", back_populates="table")
 
@@ -133,17 +133,16 @@ class OrderItem(BaseModel):
     served_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
     order = relationship("Order", back_populates="items")
-    modifiers = relationship("OrderItemModifier", back_populates="order_item")
 
 
-class OrderItemModifier(BaseModel):
-    __tablename__ = "order_item_modifier"
+# class OrderItemModifier(BaseModel):
+#     __tablename__ = "order_item_modifier"
 
-    order_item_id: Mapped[int] = mapped_column(ForeignKey("order_item.id"))
-    name: Mapped[str] = mapped_column(String)
-    price_delta: Mapped[float] = mapped_column(Numeric)
+#     order_item_id: Mapped[int] = mapped_column(ForeignKey("order_item.id"))
+#     name: Mapped[str] = mapped_column(String)
+#     price_delta: Mapped[float] = mapped_column(Numeric)
 
-    order_item = relationship("OrderItem", back_populates="modifiers")
+#     order_item = relationship("OrderItem", back_populates="modifiers")
 
 
 class Payment(BaseModel):
