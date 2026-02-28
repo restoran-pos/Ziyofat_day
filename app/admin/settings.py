@@ -7,7 +7,7 @@ from app.admin.auth import JSONAuthProvider
 
 admin = Admin(engine=engine, title="ZIYOFAT ADMIN", base_url="/admin",auth_provider=JSONAuthProvider(login_path="/login", logout_path="/logout"))
 
-admin.add_view(UserAdminView(User, icon="fa fa-user"))
+admin.add_view(UserAdminView(User, icon="fa fa-users"))
 admin.add_view(MenuCategoryView(MenuCategory,icon="fa fa-list"))
 admin.add_view(MenuItemView(MenuItem,icon="fa fa-utensils"))
 admin.add_view(TableViews(DiningTable,icon="fa fa-chair"))

@@ -13,3 +13,23 @@ class TableCreate(TableBase):
 
 class TableRead(TableBase):
     id: int
+
+
+class UserProfileResponse(BaseModel):
+    username: str |None =None
+    first_name:str | None = None
+    last_name:str | None = None
+    avatar_url:str | None = None
+    
+    
+class UserLoginRequest(BaseModel):
+    username:str | None = None
+    password:str | None = None
+    
+    
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+    
+    
+class UserUploadRequest(BaseModel):
+    pass

@@ -10,6 +10,8 @@ from sqlalchemy import select
 from app.models import Media,MenuItem,MenuCategory
 
 
+UPLOAD_DIR = "media_uploads"  
+
 
 def looks_hashed(p: str):
     return p.startswith("$argon2")
@@ -24,7 +26,7 @@ class UserAdminView(ModelView):
         "last_name",
         "password_hash",
         "role",
-        "avatar_id",
+        FileField("img_file", label="Avatar"),
         "created_at",
         "updated_at",
         "is_active",
@@ -58,6 +60,31 @@ class UserAdminView(ModelView):
         pwd = data.get("password_hash")
         if pwd and not looks_hashed(pwd):
             obj.password_hash = hash_password(pwd)  # ASOSIY FIX
+        
+        session = request.state.session
+        
+        up: UploadFile | None = extract_upload(data.get("img_file"))
+        if up:
+            os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+            filename = f"{uuid.uuid4().hex}{_safe_ext(up.filename)}"
+            path = os.path.join(UPLOAD_DIR, filename)
+
+            content = await up.read()
+            with open(path, "wb") as f:
+                f.write(content)
+
+            # BU URL app.mount(...) ga mos bo‘lishi shart
+            url = f"/static/uploads/{filename}"
+
+            media = Media(url=url)
+            session.add(media)
+            session.flush([media])   # media.id olish uchun
+
+            obj.avatar_id = media.id
+
+        data.pop("img_file", None)
+        
 
     async def before_edit(
         self, request: Request, data: Dict[str, Any], obj: Any
@@ -69,6 +96,28 @@ class UserAdminView(ModelView):
             if not looks_hashed(pwd):
                 obj.password_hash = hash_password(pwd)
 
+        session = request.state.session
+        
+        up: UploadFile | None = extract_upload(data.get("img_file"))
+        if up:
+            os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+            filename = f"{uuid.uuid4().hex}{_safe_ext(up.filename)}"
+            path = os.path.join(UPLOAD_DIR, filename)
+
+            content = await up.read()
+            with open(path, "wb") as f:
+                f.write(content)
+
+            url = f"/static/uploads/{filename}"
+
+            media = Media(url=url)
+            session.add(media)
+            session.flush([media])
+
+            obj.avatar_id = media.id
+    
+        data.pop("img_file", None)
 
 
 def extract_upload(v) -> UploadFile | None:
@@ -111,7 +160,6 @@ class MenuCategoryView(ModelView):
 
 
 
-UPLOAD_DIR = "media_uploads"  
 
 def _safe_ext(filename: str) -> str:
     _, ext = os.path.splitext(filename or "")
