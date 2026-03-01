@@ -38,12 +38,11 @@ class TableCreate(TableBase):
 class TableRead(TableBase):
     id: int
 
-class TableStatusChoise(str,Enum):
-    FREE="free"
-    OCCUPIED="occupied"
-    REVERSED="reversed"
 
-
+class TableStatusChoise(str, Enum):
+    FREE = "free"
+    OCCUPIED = "occupied"
+    REVERSED = "reversed"
 
 
 class MenuCategoryRead(BaseModel):
@@ -52,8 +51,6 @@ class MenuCategoryRead(BaseModel):
     sort_order: int
 
     model_config = {"from_attributes": True}
-
-
 
 
 class MenuItemVariantRead(BaseModel):

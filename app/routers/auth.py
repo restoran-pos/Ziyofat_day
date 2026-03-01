@@ -53,7 +53,7 @@ async def refresh(db: db_dep, data: RefreshTokenRequest):
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-jwt_security = HTTPBearer(auto_error=False)
+jwt_security = HTTPBearer(auto_error=False)  # TODO: imports doim tepada
 
 
 @router.post("/logout", status_code=200)

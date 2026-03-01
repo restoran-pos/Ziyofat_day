@@ -3,13 +3,14 @@ from sqlalchemy import select
 
 from app.models import DiningTable
 from app.database import db_dep
-from app.schemas import TableRead,TableStatusChoise
+from app.schemas import TableRead, TableStatusChoise
 
 router = APIRouter(prefix="/tables", tags=["Tables"])
 
 
 @router.get("/", response_model=list[TableRead])
 async def get_tables(session: db_dep, status: TableStatusChoise | None = None):
+    # TODO: order by, filter, search, pagination
     stmt = select(DiningTable)
     if status:
         stmt = stmt.where(DiningTable.status == status)
@@ -25,6 +26,8 @@ async def get_table(session: db_dep, table_id: int):
 
     if not table:
         raise HTTPException(status_code=404, detail="Table not found")
+
+    # TODO: check if not reserved
     return table
 
 
@@ -56,7 +59,7 @@ async def occupy_table(session: db_dep, table_id: int):
     if table.status == "occupied":
         raise HTTPException(status_code=400, detail="Table is already occupied")
 
-    table.status = "occupied"
+    table.status = "occupied"  # TODO: use enum
     session.commit()
     session.refresh(table)
     return table

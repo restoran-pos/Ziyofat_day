@@ -8,8 +8,6 @@ from app.schemas import MenuCategoryRead, MenuItemRead, MenuItemVariantRead
 router = APIRouter(prefix="/menu", tags=["Menu"])
 
 
-
-
 @router.get("/categories/", response_model=list[MenuCategoryRead])
 def get_categories(session: db_dep):
     """Barcha kategoriyalar (sort_order bo'yicha)"""
@@ -29,8 +27,6 @@ def get_category(category_id: int, session: db_dep):
     return category
 
 
-
-
 @router.get("/items/", response_model=list[MenuItemRead])
 def get_items(
     session: db_dep,
@@ -38,18 +34,7 @@ def get_items(
     is_active: bool = True,
     station: str | None = None,
 ):
-    """
-    Taomlar ro'yxati.
-    - ?category_id=1     — kategoriya bo'yicha filter
-    - ?station=kitchen   — stantsiya bo'yicha filter
-    - ?is_active=false   — o'chirilgan taomlarni ko'rish
-    """
-    stmt = select(MenuItem).where(MenuItem.is_active == is_active)
-    if category_id is not None:
-        stmt = stmt.where(MenuItem.category_id == category_id)
-    if station is not None:
-        stmt = stmt.where(MenuItem.station == station)
-    return session.execute(stmt).scalars().all()
+    pass
 
 
 @router.get("/items/{item_id}/", response_model=MenuItemRead)
@@ -59,8 +44,6 @@ def get_item(item_id: int, session: db_dep):
     if not item:
         raise HTTPException(status_code=404, detail="Taom topilmadi")
     return item
-
-
 
 
 @router.get("/items/{item_id}/variants/", response_model=list[MenuItemVariantRead])
