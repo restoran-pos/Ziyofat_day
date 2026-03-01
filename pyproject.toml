@@ -17,3 +17,8 @@ dependencies = [
     "starlette-admin>=0.16.0",
     "uvicorn>=0.41.0",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.2",
+]
