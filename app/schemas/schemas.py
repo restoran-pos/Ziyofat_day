@@ -25,7 +25,6 @@ class UserUploadRequest(BaseModel):
 from pydantic import BaseModel
 
 
-# ───── TABLE ─────────────────────────────────────
 class TableBase(BaseModel):
     table_no: str
     capacity: int
@@ -44,7 +43,7 @@ class TableStatusChoise(str,Enum):
     OCCUPIED="occupied"
     REVERSED="reversed"
 
-# ───── MENU CATEGORY ─────────────────────────────
+
 
 
 class MenuCategoryRead(BaseModel):
@@ -55,7 +54,6 @@ class MenuCategoryRead(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ───── MENU ITEM VARIANT ─────────────────────────
 
 
 class MenuItemVariantRead(BaseModel):
@@ -67,7 +65,6 @@ class MenuItemVariantRead(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ───── MENU ITEM ─────────────────────────────────
 class MenuItemRead(BaseModel):
     id: int
     name: str
