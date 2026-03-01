@@ -1,9 +1,7 @@
 import os
-import uuid
 from fastapi import APIRouter, Request, UploadFile, Form, File
 
 
-from app.models import Media
 from app.schemas import UserProfileResponse
 from app.dependencies import current_user
 
@@ -12,10 +10,10 @@ router = APIRouter(prefix="/user", tags=["User"])
 
 def _safe_ext(filename: str) -> str:
     _, ext = os.path.splitext(filename or "")
-    return ext.lower()[:10] if ext else ""
+    return ext.lower()[:10] if ext else ""  # TODO: move to UTILS
 
 
-UPLOAD_DIR = "media_uploads"
+UPLOAD_DIR = "media_uploads"  # TODO: config settings
 
 
 @router.get("/profile/", response_model=UserProfileResponse)
@@ -28,7 +26,7 @@ async def me(current_user: current_user):
     )
 
 
-@router.patch("/profile/update", response_model=UserProfileResponse)
+@router.put("/profile/update", response_model=UserProfileResponse)
 async def update_me(
     current_user: current_user,
     request: Request,
@@ -36,30 +34,21 @@ async def update_me(
     last_name: str | None = Form(None),
     avatar: UploadFile | None = File(None),
 ):
-    session = request.state.session
+    pass
 
-    current_user = session.merge(current_user)
 
-    if first_name is not None:
-        current_user.first_name = first_name
-    if last_name is not None:
-        current_user.last_name = last_name
+@router.post("/avatar/upload/", response_model=UserProfileResponse)
+async def upload_avatar(
+    current_user: current_user,
+    request: Request,
+    avatar: UploadFile | None = File(None),
+):
+    pass
 
-    if avatar:
-        os.makedirs(UPLOAD_DIR, exist_ok=True)
-        filename = f"{uuid.uuid4().hex}{_safe_ext(avatar.filename)}"
-        path = os.path.join(UPLOAD_DIR, filename)
 
-        with open(path, "wb") as f:
-            f.write(await avatar.read())
-
-        media = Media(url=f"/static/uploads/{filename}")
-        session.add(media)
-        session.flush([media])
-
-        current_user.avatar_id = media.id
-
-    session.commit()
-    session.refresh(current_user)
-
-    return current_user
+@router.delete("/avatar/delete/", response_model=UserProfileResponse)
+async def delete_avatar(
+    current_user: current_user,
+    request: Request,
+):
+    pass

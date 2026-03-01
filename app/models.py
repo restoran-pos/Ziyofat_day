@@ -13,6 +13,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
+from app.enums import DiningTableStatusEnum
 
 
 class BaseModel(Base):
@@ -31,13 +32,13 @@ class User(BaseModel):
     __tablename__ = "users"
 
     username: Mapped[str] = mapped_column(String, unique=True)
+    password_hash: Mapped[str] = mapped_column(String)
     first_name: Mapped[str] = mapped_column(String, nullable=True)
     last_name: Mapped[str] = mapped_column(String, nullable=True)
-    role: Mapped[str] = mapped_column(String)
+    role: Mapped[str] = mapped_column(String)  # TODO: add default
     avatar_id: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("media.id", ondelete="SET NULL"), nullable=True
     )
-    password_hash: Mapped[str] = mapped_column(String)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -50,8 +51,10 @@ class DiningTable(BaseModel):
     __tablename__ = "dining_table"
 
     table_no: Mapped[str] = mapped_column(String, unique=True)
-    capacity: Mapped[int] = mapped_column(Integer)
-    status: Mapped[str] = mapped_column(String, nullable=True, default="free")
+    capacity: Mapped[int] = mapped_column(Integer)  # TODO: add default
+    status: Mapped[str] = mapped_column(
+        String, nullable=True, default=DiningTableStatusEnum.FREE
+    )  # TODO: add default with ENUM
 
     orders = relationship("Order", back_populates="table")
 
@@ -79,8 +82,8 @@ class MenuItem(BaseModel):
         BigInteger, ForeignKey("media.id", ondelete="SET NULL"), nullable=True
     )
     description: Mapped[str] = mapped_column(String)
-    base_price: Mapped[float] = mapped_column(Numeric)
-    station: Mapped[str] = mapped_column(String)
+    base_price: Mapped[float] = mapped_column(Numeric)  # TODO: make it integer
+    station: Mapped[str] = mapped_column(String)  # Make enum
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     category = relationship("MenuCategory", back_populates="items")
@@ -93,7 +96,7 @@ class MenuItemVariant(BaseModel):
 
     menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_item.id"))
     name: Mapped[str] = mapped_column(String)
-    price_delta: Mapped[float] = mapped_column(Numeric)
+    price_delta: Mapped[float] = mapped_column(Numeric)  # make int
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     menu_item = relationship("MenuItem", back_populates="variants")
@@ -109,6 +112,7 @@ class Order(BaseModel):
     submitted_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     closed_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     notes: Mapped[str] = mapped_column(String, nullable=True)
+    # TODO: total price field add
 
     table = relationship("DiningTable", back_populates="orders")
     waiter = relationship("User", back_populates="orders")
@@ -153,7 +157,7 @@ class Payment(BaseModel):
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
     cashier_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
     method: Mapped[str] = mapped_column(String)
-    amount: Mapped[float] = mapped_column(Numeric)
+    amount: Mapped[float] = mapped_column(Numeric)  # TODO: make it integer
     paid_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     receipt_no: Mapped[str] = mapped_column(String, unique=True)
 
@@ -169,6 +173,11 @@ class AuditLog(BaseModel):
     action: Mapped[str] = mapped_column(String)
     meta: Mapped[dict] = mapped_column(JSON)
 
+    def __repr__(self):
+        return (
+            f"User({self.user_id}) did {self.action} on {self.entity}({self.entity_id})"
+        )
+
 
 class Media(Base):
     __tablename__ = "media"
@@ -181,3 +190,6 @@ class TokenBlacklist(Base):
     __tablename__ = "token_blacklist"
 
     token: Mapped[str] = mapped_column(String, primary_key=True)
+
+
+# TODO: add repr for all models

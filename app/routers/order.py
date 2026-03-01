@@ -13,6 +13,7 @@ router = APIRouter(prefix="/orders", tags=["Orders"])
 
 @router.get("/", response_model=list[OrderRead])
 async def get_orders(session: db_dep, status: str | None = None):
+    # TODO: add filter, search, pagination
     stmt = select(Order)
 
     if status:
