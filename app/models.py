@@ -79,7 +79,7 @@ class MenuItem(BaseModel):
         BigInteger, ForeignKey("media.id", ondelete="SET NULL"), nullable=True
     )
     description: Mapped[str] = mapped_column(String)
-    base_price: Mapped[float] = mapped_column(Numeric)
+    base_price: Mapped[int] = mapped_column(BigInteger)
     station: Mapped[str] = mapped_column(String)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
