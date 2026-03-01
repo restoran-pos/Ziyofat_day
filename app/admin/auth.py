@@ -51,7 +51,7 @@ class JSONAuthProvider(AuthProvider):
             httponly=True,
             max_age=expire_delta,
             secure=True,
-            samesite="lax"
+            samesite="lax",
         )
         db.close()
 
@@ -88,5 +88,3 @@ class JSONAuthProvider(AuthProvider):
     async def logout(self, request: Request, response: Response) -> Response:
         response.delete_cookie("access_token")
         return response
-    
-    

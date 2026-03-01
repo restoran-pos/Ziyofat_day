@@ -5,6 +5,7 @@ Revises: 1055116bf7a5
 Create Date: 2026-03-01 07:00:44.860868
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -12,12 +13,13 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'dda04903e2ff'
-down_revision: Union[str, Sequence[str], None] = '1055116bf7a5'
+revision: str = "dda04903e2ff"
+down_revision: Union[str, Sequence[str], None] = "1055116bf7a5"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 table_status = sa.Enum("free", "occupied", "reserved", name="table_status")
+
 
 def upgrade():
     bind = op.get_bind()

@@ -1,4 +1,4 @@
-from datetime import datetime,timezone,UTC
+from datetime import datetime
 
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
@@ -36,11 +36,7 @@ async def get_order(session: db_dep, order_id: int):
 
 @router.post("/open/", response_model=OrderRead)
 async def open_order(session: db_dep, table_id: int, waiter_id: int):
-    order = Order(
-        table_id=table_id,
-        waiter_id=waiter_id,
-        status="open"
-    )
+    order = Order(table_id=table_id, waiter_id=waiter_id, status="open")
 
     session.add(order)
     session.commit()

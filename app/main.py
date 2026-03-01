@@ -6,10 +6,12 @@ from app.routers import (
     login_router,
     menu_router,
     order_router,
-    user_router
-    )
+    user_router,
+)
+
 # from app.middleware.dbmiddleware import DBSessionMiddleware
-from app.admin.settings import  admin
+from app.admin.settings import admin
+
 app = FastAPI(title="ZIYOFAT-DAY")
 
 

@@ -1,5 +1,6 @@
 from starlette.middleware.base import BaseHTTPMiddleware
-from app.database import SessionLocal,get_db
+from app.database import SessionLocal
+
 
 class DBSessionMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):

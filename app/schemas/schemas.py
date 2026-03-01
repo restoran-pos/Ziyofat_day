@@ -1,36 +1,22 @@
 from pydantic import BaseModel
 
 
-class TableBase(BaseModel):
-    table_no: str
-    capacity: int
-    status: str
-
-
-class TableCreate(TableBase):
-    pass  # Admin CRUD uchun kerak bo‘lsa
-
-
-class TableRead(TableBase):
-    id: int
-
-
 class UserProfileResponse(BaseModel):
-    username: str |None =None
-    first_name:str | None = None
-    last_name:str | None = None
-    avatar_url:str | None = None
-    
-    
+    username: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    avatar_url: str | None = None
+
+
 class UserLoginRequest(BaseModel):
-    username:str | None = None
-    password:str | None = None
-    
-    
+    username: str | None = None
+    password: str | None = None
+
+
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
-    
-    
+
+
 class UserUploadRequest(BaseModel):
     pass
 
@@ -58,7 +44,6 @@ class TableRead(TableBase):
 # ───── MENU CATEGORY ─────────────────────────────
 
 
-
 class MenuCategoryRead(BaseModel):
     id: int
     name: str
@@ -68,6 +53,7 @@ class MenuCategoryRead(BaseModel):
 
 
 # ───── MENU ITEM VARIANT ─────────────────────────
+
 
 class MenuItemVariantRead(BaseModel):
     id: int
@@ -87,14 +73,13 @@ class MenuItemRead(BaseModel):
     station: str
     is_active: bool
     category_id: int | None
-    img_id: int | None          # rasm ID — frontend /static/uploads/ orqali oladi
+    img_id: int | None  # rasm ID — frontend /static/uploads/ orqali oladi
     variants: list[MenuItemVariantRead] = []
 
     model_config = {"from_attributes": True}
-    
-    
-    
+
+
 class OrderRead(BaseModel):
-    id:int|None=None
-    waiter_id:int | None = None
-    table_id:int | None = None
+    id: int | None = None
+    waiter_id: int | None = None
+    table_id: int | None = None

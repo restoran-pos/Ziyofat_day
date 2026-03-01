@@ -51,7 +51,7 @@ class DiningTable(BaseModel):
 
     table_no: Mapped[str] = mapped_column(String, unique=True)
     capacity: Mapped[int] = mapped_column(Integer)
-    status: Mapped[str] = mapped_column(String,nullable=True,default="free")
+    status: Mapped[str] = mapped_column(String, nullable=True, default="free")
 
     orders = relationship("Order", back_populates="table")
 
@@ -63,7 +63,7 @@ class MenuCategory(BaseModel):
     sort_order: Mapped[int] = mapped_column(Integer)
 
     items = relationship("MenuItem", back_populates="category")
-    
+
     def __admin_repr__(self, request: Request):
         return self.name
 
@@ -71,7 +71,9 @@ class MenuCategory(BaseModel):
 class MenuItem(BaseModel):
     __tablename__ = "menu_item"
 
-    category_id: Mapped[int] = mapped_column(ForeignKey("menu_category.id"),nullable=True)
+    category_id: Mapped[int] = mapped_column(
+        ForeignKey("menu_category.id"), nullable=True
+    )
     name: Mapped[str] = mapped_column(String)
     img_id: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("media.id", ondelete="SET NULL"), nullable=True
