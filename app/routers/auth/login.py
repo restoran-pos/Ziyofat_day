@@ -8,7 +8,7 @@ from sqlalchemy import select
 from app.database import db_dep,get_db
 from app.dependencies import current_user
 from app.schemas import UserLoginRequest, RefreshTokenRequest, UserProfileResponse
-from app.models import User,Media
+from app.models import User,Media,TokenBlacklist
 from app.utils import verify_password, generate_jwt_tokens, decode_jwt_token
 
 def _safe_ext(filename: str) -> str:
@@ -58,47 +58,17 @@ async def refresh(db: db_dep, data: RefreshTokenRequest):
     }
 
 
-@router.get("/me/", response_model=UserProfileResponse)
-async def me(current_user: current_user):
-    return UserProfileResponse(
-        username=current_user.username,
-        first_name=current_user.first_name,
-        last_name=current_user.last_name,
-        avatar_url=(current_user.avatar.url if current_user.avatar else None),
-    )
-    
-    
-@router.patch("/update",response_model=UserProfileResponse)
-async def update_me(
-    current_user:current_user,
-    request: Request,
-    first_name: str | None = Form(None),
-    last_name: str | None = Form(None),
-    avatar: UploadFile | None = File(None)
-):
-    session = request.state.session
+@router.post("/logout", status_code=200)
+async def logout(session:db_dep,request: Request):
+    token = request.headers.get("Authorization")
 
-    current_user = session.merge(current_user)
-    if first_name is not None:
-        current_user.first_name = first_name
-    if last_name is not None:
-        current_user.last_name = last_name
+    if token and token.startswith("Bearer "):
+        token = token.split(" ")[1]
 
-    if avatar:
-        os.makedirs(UPLOAD_DIR, exist_ok=True)
-        filename = f"{uuid.uuid4().hex}{_safe_ext(avatar.filename)}"
-        path = os.path.join(UPLOAD_DIR, filename)
 
-        with open(path, "wb") as f:
-            f.write(await avatar.read())
 
-        media = Media(url=f"/static/uploads/{filename}")
-        session.add(media)
-        session.flush([media])
+        blacklist = TokenBlacklist(token=token)
+        session.add(blacklist)
+        session.commit()
 
-        current_user.avatar_id = media.id
-
-    session.commit()
-    session.refresh(current_user)
-    
-    return current_user
+    return {"detail": "Logout successfully"}

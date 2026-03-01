@@ -56,14 +56,7 @@ class TableRead(TableBase):
 
 
 # ───── MENU CATEGORY ─────────────────────────────
-class MenuCategoryCreate(BaseModel):
-    name: str
-    sort_order: int = 0
 
-
-class MenuCategoryUpdate(BaseModel):
-    name: str | None = None
-    sort_order: int | None = None
 
 
 class MenuCategoryRead(BaseModel):
@@ -75,11 +68,6 @@ class MenuCategoryRead(BaseModel):
 
 
 # ───── MENU ITEM VARIANT ─────────────────────────
-class MenuItemVariantCreate(BaseModel):
-    name: str
-    price_delta: float = 0.0
-    is_active: bool = True
-
 
 class MenuItemVariantRead(BaseModel):
     id: int
@@ -91,25 +79,6 @@ class MenuItemVariantRead(BaseModel):
 
 
 # ───── MENU ITEM ─────────────────────────────────
-class MenuItemCreate(BaseModel):
-    name: str
-    description: str
-    base_price: float
-    station: str                 # "kitchen" | "bar" | "grill"
-    category_id: int | None = None
-    is_active: bool = True
-    # img_id admin panel orqali yuklanadi, API dan kelmaydi
-
-
-class MenuItemUpdate(BaseModel):
-    name: str | None = None
-    description: str | None = None
-    base_price: float | None = None
-    station: str | None = None
-    category_id: int | None = None
-    is_active: bool | None = None
-
-
 class MenuItemRead(BaseModel):
     id: int
     name: str
@@ -122,3 +91,10 @@ class MenuItemRead(BaseModel):
     variants: list[MenuItemVariantRead] = []
 
     model_config = {"from_attributes": True}
+    
+    
+    
+class OrderRead(BaseModel):
+    id:int|None=None
+    waiter_id:int | None = None
+    table_id:int | None = None

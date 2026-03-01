@@ -3,11 +3,9 @@ from typing import Any, Dict
 from starlette.requests import Request
 from starlette_admin.contrib.sqla import ModelView
 from starlette.datastructures import UploadFile
-from starlette_admin.fields import FileField
+from starlette_admin.fields import FileField,EnumField
 from app.utils import hash_password
-from sqlalchemy import select
-
-from app.models import Media,MenuItem,MenuCategory
+from app.models import Media
 
 
 UPLOAD_DIR = "media_uploads"  
@@ -75,7 +73,7 @@ class UserAdminView(ModelView):
                 f.write(content)
 
             # BU URL app.mount(...) ga mos bo‘lishi shart
-            url = f"/static/uploads/{filename}"
+            url = f"/{UPLOAD_DIR}/{filename}"
 
             media = Media(url=url)
             session.add(media)
@@ -109,7 +107,7 @@ class UserAdminView(ModelView):
             with open(path, "wb") as f:
                 f.write(content)
 
-            url = f"/static/uploads/{filename}"
+            url = f"/{UPLOAD_DIR}/{filename}"
 
             media = Media(url=url)
             session.add(media)
@@ -181,6 +179,15 @@ class MenuItemView(ModelView):
     
     exclude_fields_from_create = ["id", "updated_at", "created_at"]
     exclude_fields_from_edit   = ["id", "updated_at", "created_at"]
+    exclude_fields_from_detail=[
+        "id",
+        "station",
+        "base_price",
+        "description",
+        "is_active",
+        "created_at",
+        "updated_at",
+    ]
 
     async def before_create(self, request: Request, data: Dict[str, Any], obj: Any) -> None:
         session = request.state.session
@@ -203,7 +210,7 @@ class MenuItemView(ModelView):
                 f.write(content)
 
             # BU URL app.mount(...) ga mos bo‘lishi shart
-            url = f"/static/uploads/{filename}"
+            url = f"/{UPLOAD_DIR}/{filename}"
 
             media = Media(url=url)
             session.add(media)
@@ -234,7 +241,7 @@ class MenuItemView(ModelView):
             with open(path, "wb") as f:
                 f.write(content)
 
-            url = f"/static/uploads/{filename}"
+            url = f"/{UPLOAD_DIR}/{filename}"
 
             media = Media(url=url)
             session.add(media)
@@ -251,7 +258,13 @@ class TableViews(ModelView):
         "id",
         "table_no",
         "capacity",
-        "status",
+        EnumField("status",
+                  choices=[
+                      ("free","Free"),
+                      ("occupied","Occupied"),
+                      ("reversed","Reversed")
+                  ]
+                  ),
         "created_at",
         "updated_at"
     ]
@@ -271,7 +284,6 @@ class TableViews(ModelView):
         "created_at",
         "id"
     ]
-    
     
     
     

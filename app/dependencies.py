@@ -5,7 +5,7 @@ from sqlalchemy.orm import joinedload
 from fastapi import HTTPException,Depends
 from fastapi.security import HTTPAuthorizationCredentials,HTTPBearer
 from app.database import db_dep
-from app.models import User
+from app.models import User,TokenBlacklist
 from app.utils import decode_jwt_token
 
 
@@ -15,8 +15,12 @@ def get_current_user_jwt(session: db_dep, credentials: HTTPAuthorizationCredenti
     if not credentials:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    print(credentials.credentials)
+    token=credentials.credentials
+    stmt = select(TokenBlacklist).where(TokenBlacklist.token == token)
+    if session.execute(stmt).scalar():
+        raise HTTPException(status_code=401, detail="Token revoked")
 
+    
     decoded = decode_jwt_token(credentials.credentials)
     user_id = decoded["sub"]
     exp = datetime.fromtimestamp(decoded["exp"], tz=timezone.utc)

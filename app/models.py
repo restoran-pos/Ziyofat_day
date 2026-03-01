@@ -51,7 +51,7 @@ class DiningTable(BaseModel):
 
     table_no: Mapped[str] = mapped_column(String, unique=True)
     capacity: Mapped[int] = mapped_column(Integer)
-    status: Mapped[str] = mapped_column(String,nullable=True)
+    status: Mapped[str] = mapped_column(String,nullable=True,default="free")
 
     orders = relationship("Order", back_populates="table")
 
@@ -173,3 +173,9 @@ class Media(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     url: Mapped[str] = mapped_column(String)
+
+
+class TokenBlacklist(Base):
+    __tablename__ = "token_blacklist"
+
+    token: Mapped[str] = mapped_column(String, primary_key=True)
