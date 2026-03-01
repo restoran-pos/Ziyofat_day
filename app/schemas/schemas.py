@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from enum import Enum
 
 
 class UserProfileResponse(BaseModel):
@@ -38,8 +39,10 @@ class TableCreate(TableBase):
 class TableRead(TableBase):
     id: int
 
-    model_config = {"from_attributes": True}
-
+class TableStatusChoise(str,Enum):
+    FREE="free"
+    OCCUPIED="occupied"
+    REVERSED="reversed"
 
 # ───── MENU CATEGORY ─────────────────────────────
 

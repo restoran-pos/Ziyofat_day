@@ -3,13 +3,13 @@ from sqlalchemy import select
 
 from app.models import DiningTable
 from app.database import db_dep
-from app.schemas import TableRead
+from app.schemas import TableRead,TableStatusChoise
 
 router = APIRouter(prefix="/tables", tags=["Tables"])
 
 
 @router.get("/", response_model=list[TableRead])
-async def get_tables(session: db_dep, status: str | None = None):
+async def get_tables(session: db_dep, status: TableStatusChoise | None = None):
     stmt = select(DiningTable)
     if status:
         stmt = stmt.where(DiningTable.status == status)
