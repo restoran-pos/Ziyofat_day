@@ -57,18 +57,23 @@ async def refresh(db: db_dep, data: RefreshTokenRequest):
         "access_token": access_token,
     }
 
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+jwt_security = HTTPBearer(auto_error=False)
 
 @router.post("/logout", status_code=200)
-async def logout(session:db_dep,request: Request):
-    token = request.headers.get("Authorization")
+async def logout(
+    session:db_dep,
+    request: Request,
+    credentials: HTTPAuthorizationCredentials = Depends(jwt_security),
+):
+    if not credentials:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
-    if token and token.startswith("Bearer "):
-        token = token.split(" ")[1]
+    token = credentials.credentials  # toza token
 
-
-
-        blacklist = TokenBlacklist(token=token)
-        session.add(blacklist)
-        session.commit()
+    session.add(TokenBlacklist(token=token))
+    session.commit()
 
     return {"detail": "Logout successfully"}

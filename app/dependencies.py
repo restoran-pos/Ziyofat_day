@@ -18,7 +18,7 @@ def get_current_user_jwt(session: db_dep, credentials: HTTPAuthorizationCredenti
     token=credentials.credentials
     stmt = select(TokenBlacklist).where(TokenBlacklist.token == token)
     if session.execute(stmt).scalar():
-        raise HTTPException(status_code=401, detail="Token revoked")
+        raise HTTPException(status_code=401, detail="Token in blacklist")
 
     
     decoded = decode_jwt_token(credentials.credentials)
