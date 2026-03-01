@@ -18,7 +18,7 @@ def _safe_ext(filename: str) -> str:
 
 UPLOAD_DIR = "media_uploads"  
 
-router = APIRouter(prefix="/jwt", tags=["Auth"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/login/")
